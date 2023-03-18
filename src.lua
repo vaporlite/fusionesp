@@ -9,7 +9,7 @@
 local plrs = game:GetService("Players")
 local lp = plrs.LocalPlayer
 local cg = game:GetService("CoreGui")
-local mouse = lp:GetMouse()
+local uis = game:GetService("UserInputService")
 
 shared["toggled"] = false
 shared["refresh"] = true
@@ -58,9 +58,10 @@ for _, player in next, plrs:GetPlayers() do
     AddEsp(player)
 end
 
-mouse.KeyDown:Connect(function(k)
-    k = k:lower()
-    if k == "p" then
+uis.InputBegan:Connect(function(i,gpe)
+    if gpe then return end
+    if i.KeyCode == Enum.KeyCode.F5 then
+        print('[FusionESP] refreshing...')
         for _, player in next, plrs:GetPlayers() do
             if player == lp then
                 continue
@@ -68,6 +69,10 @@ mouse.KeyDown:Connect(function(k)
             local before = cg:FindFirstChild(player.Name)
             if not before then
                 AddEsp(player)
+                print('[FusionESP] refreshed '..player.Name..' (added esp to him)')
+            else
+                before.Adornee = player.Character
+                print('[FusionESP] refreshed '..player.Name..' (had esp object before)')
             end
         end
     end
