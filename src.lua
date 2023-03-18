@@ -14,6 +14,15 @@ local uis = game:GetService("UserInputService")
 shared["toggled"] = false
 shared["refresh"] = true
 
+local function isFriend(id)
+    for _, pl in pairs(plrs:GetPlayers()) do
+        if lp:IsFriendsWith(id) then
+            return true
+        end
+    end
+    return false
+end 
+
 local function AddEsp(p)
     local highlight = Instance.new("Highlight")
     highlight.Parent = cg
@@ -27,6 +36,10 @@ local function AddEsp(p)
         highlight.FillColor = Color3.fromRGB(170, 63, 232)
         highlight.OutlineColor = Color3.fromRGB(170, 63, 232)
     end
+    if isFriend(p.UserId) then
+        highlight.FillColor = Color3.fromRGB(61, 252, 3)
+        highlight.OutlineColor = Color3.fromRGB(61, 252, 3)
+    end
 
     p.CharacterAdded:Connect(function(c)
         local before = cg:FindFirstChild(p.Name)
@@ -38,6 +51,10 @@ local function AddEsp(p)
             else
                 before.FillColor = Color3.fromRGB(170, 63, 232)
                 highlight.OutlineColor = Color3.fromRGB(170, 63, 232)
+            end
+            if isFriend(p.UserId) then
+                highlight.FillColor = Color3.fromRGB(61, 252, 3)
+                highlight.OutlineColor = Color3.fromRGB(61, 252, 3)
             end
         end
     end)
@@ -58,7 +75,7 @@ for _, player in next, plrs:GetPlayers() do
     AddEsp(player)
 end
 
-uis.InputBegan:Connect(function(i,gpe)
+--[[uis.InputBegan:Connect(function(i,gpe)
     if gpe then return end
     if i.KeyCode == Enum.KeyCode.F5 then
         print('[FusionESP] refreshing...')
@@ -72,8 +89,48 @@ uis.InputBegan:Connect(function(i,gpe)
                 print('[FusionESP] refreshed '..player.Name..' (added esp to him)')
             else
                 before.Adornee = player.Character
+                if isFriend(p) then
+                    before.FillColor = Color3.fromRGB(61, 252, 3)
+                    before.OutlineColor = Color3.fromRGB(61, 252, 3)
+                end
                 print('[FusionESP] refreshed '..player.Name..' (had esp object before)')
             end
+        end
+    end
+end)]]
+
+local SolarisLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/2dgeneralspam1/lua-releases/main/uis/boxlib.lua"))()
+
+local win = SolarisLib:New({
+    Name = "⚙️ FusionESP",
+    FolderToSave = "fusionesp"
+})
+
+local settings_tab = win:Tab("Settings")
+
+local settings_enemies = settings_tab:Section("Enemies")
+
+
+
+local settings_keybinds = settings_tab:Section("Keybinds")
+
+settings_keybinds:Bind("Refresh", Enum.KeyCode.F5, false, "refreshbind", function()
+    print('[FusionESP] refreshing...')
+    for _, player in next, plrs:GetPlayers() do
+        if player == lp then
+            continue
+        end
+        local before = cg:FindFirstChild(player.Name)
+        if not before then
+            AddEsp(player)
+            print('[FusionESP] refreshed '..player.Name..' (added esp to him)')
+        else
+            before.Adornee = player.Character
+            if isFriend(player.UserId) then
+                before.FillColor = Color3.fromRGB(61, 252, 3)
+                before.OutlineColor = Color3.fromRGB(61, 252, 3)
+            end
+            print('[FusionESP] refreshed '..player.Name..' (had esp object before)')
         end
     end
 end)
